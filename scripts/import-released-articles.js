@@ -63,6 +63,12 @@ function inlineMarkdown(value = "") {
     .replace(/`([^`]+)`/g, "<code>$1</code>");
 }
 
+function cleanImageAlt(value = "") {
+  const alt = stripMarkdown(value);
+  if (!alt || /^(mid|top|image|img|photo|picture)$/i.test(alt)) return "";
+  return alt;
+}
+
 function stableViews(slug) {
   let hash = 0;
   for (const char of slug) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
@@ -201,7 +207,9 @@ async function markdownToHtml(markdown, slug, imageMap) {
       flushList();
       const src = imageMap.get(imageMatch[2]);
       if (src) {
-        html.push(`<figure><img src="${src}" alt="${escapeHtml(imageMatch[1] || slug)}" loading="lazy" /><figcaption>${escapeHtml(imageMatch[1] || "Gloss & City image")}.</figcaption></figure>`);
+        const alt = cleanImageAlt(imageMatch[1]) || slug;
+        const caption = cleanImageAlt(imageMatch[1]);
+        html.push(`<figure><img src="${src}" alt="${escapeHtml(alt)}" loading="lazy" />${caption ? `<figcaption>${escapeHtml(caption)}.</figcaption>` : ""}</figure>`);
       }
       continue;
     }
