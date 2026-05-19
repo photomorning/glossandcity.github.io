@@ -239,11 +239,14 @@ function assetSrc(src, prefix = "") {
 }
 
 function renderHeader(canonical = "") {
+  const categoryNav = categories
+    .map((name) => `<a href="${absoluteUrl(`categories/${slugify(name)}.html`)}">${escapeHtml(name)}</a>`)
+    .join("");
   return `<header class="site-header">
       <nav class="top-nav" aria-label="Primary">
         <a href="/">Home</a>
-        <a href="${absoluteUrl("#popular")}">Popular</a>
-        <a href="${absoluteUrl("#categories")}">Categories</a>
+        <a href="${absoluteUrl("#latest")}">Latest</a>
+        ${categoryNav}
         <button class="plain-button" type="button" data-search-toggle>Search</button>
         <a href="${absoluteUrl("contact.html")}">Login</a>
       </nav>
@@ -254,8 +257,8 @@ function renderHeader(canonical = "") {
       </div>
       <nav class="mobile-nav" aria-label="Mobile" data-mobile-nav>
         <a href="/">Home</a>
-        <a href="${absoluteUrl("#popular")}">Popular</a>
-        <a href="${absoluteUrl("#categories")}">Categories</a>
+        <a href="${absoluteUrl("#latest")}">Latest</a>
+        ${categoryNav}
         <a href="${absoluteUrl("about.html")}">About</a>
         <a href="${absoluteUrl("contact.html")}">Contact</a>
       </nav>
@@ -351,7 +354,7 @@ function renderHome() {
 
       <section class="content-shell">
         <div>
-          <div class="section-title"><h2>Latest</h2><span>Fresh stories</span></div>
+          <div class="section-title" id="latest"><h2>Latest</h2><span>Fresh stories</span></div>
           <div class="story-grid" data-story-grid>${feed.map((article, index) => card(article, index + 5)).join("")}</div>
           <nav class="pagination" aria-label="Pagination"><span>Previous</span><strong>1</strong><a href="#">2</a><a href="#">3</a><a href="#">4</a><a href="#">5</a><span>...</span><a href="#">17</a><a href="#">Next</a></nav>
         </div>
@@ -504,6 +507,54 @@ function simplePage(title, body, description) {
   });
 }
 
+const aboutPageBody = `
+<p>Gloss &amp; City is an independent digital magazine covering fashion, beauty, celebrity style, skincare, nails, hair, red carpet moments, and the rituals of modern city living.</p>
+<p>Our point of view is polished but practical. We follow the runway, the front row, the beauty counter, the street style photograph, and the small styling decisions that make everyday dressing feel more intentional.</p>
+<h2>What We Cover</h2>
+<p>We publish trend reports, beauty explainers, celebrity style analysis, shopping-adjacent inspiration, and editorial guides designed for readers in the United States, Europe, and other style-conscious cities around the world.</p>
+<p>Gloss &amp; City is not built around noise. We care about context, wearability, visual taste, and whether a trend can actually live outside a press photo or a social media feed.</p>
+<h2>Editorial Standards</h2>
+<p>Our articles are edited for clarity, usefulness, and reader experience. When we cover beauty or skincare, the goal is to explain the trend in plain language and encourage thoughtful decisions rather than panic buying.</p>
+<p>For corrections, rights questions, or editorial notes, please contact us through the Contact page.</p>`;
+
+const contactPageBody = `
+<p>For editorial notes, corrections, partnerships, advertising, and general inquiries, contact Gloss &amp; City by email.</p>
+<p><strong>Email:</strong> <a href="mailto:hello@${siteDomain}">hello@${siteDomain}</a></p>
+<h2>Editorial and Corrections</h2>
+<p>If you notice an error, outdated detail, broken link, incorrect attribution, or image concern, include the page URL and a short explanation so we can review it quickly.</p>
+<h2>Partnerships and Advertising</h2>
+<p>For sponsored content, display placements, product launches, affiliate collaborations, and brand partnerships, include your brand name, campaign timeline, target region, and preferred placement type.</p>
+<h2>Response Time</h2>
+<p>We review messages regularly. Time-sensitive corrections and rights requests are prioritized over general pitches.</p>`;
+
+const advertisePageBody = `
+<p>Gloss &amp; City works with fashion, beauty, skincare, wellness, lifestyle, and culture brands that want to reach readers who care about style, taste, and modern urban living.</p>
+<h2>Audience</h2>
+<p>Our readers come for polished trend coverage, celebrity style context, beauty guidance, nail and hair inspiration, and practical ideas they can bring into their own wardrobes and routines.</p>
+<h2>Opportunities</h2>
+<p>Available partnership formats may include sponsored editorial features, product spotlights, display placements, seasonal trend packages, newsletter-style integrations, and custom brand storytelling.</p>
+<h2>Brand Fit</h2>
+<p>We are best suited for brands in fashion, beauty, skincare, fragrance, wellness, accessories, lifestyle, travel, and culture. We prioritize partnerships that feel useful to readers and aligned with the visual tone of Gloss &amp; City.</p>
+<h2>Contact</h2>
+<p>To discuss availability, rates, and campaign ideas, email <a href="mailto:hello@${siteDomain}">hello@${siteDomain}</a> with your brand name, campaign goals, target market, timeline, and preferred placement.</p>`;
+
+const privacyPageBody = `
+<p>This Privacy Policy explains how Gloss &amp; City handles basic information connected with operating this website.</p>
+<h2>Information We May Receive</h2>
+<p>When you visit the site, standard hosting logs may collect technical information such as browser type, device information, referring pages, approximate location data, and pages viewed. If you email us, we receive the information you choose to include in that message.</p>
+<h2>How Information Is Used</h2>
+<p>Information may be used to operate the website, understand site performance, respond to reader messages, review corrections, evaluate advertising inquiries, and maintain site security.</p>
+<h2>Cookies and Third-Party Services</h2>
+<p>The site may use hosting, analytics, advertising, affiliate, or embedded media services that rely on cookies or similar technologies. These third parties may process data according to their own privacy policies.</p>
+<h2>Email Communications</h2>
+<p>If you contact us by email, we may use your email address to respond to your request. We do not sell personal email correspondence.</p>
+<h2>External Links</h2>
+<p>Gloss &amp; City may link to third-party websites. We are not responsible for the privacy practices, content, or policies of external sites.</p>
+<h2>Updates</h2>
+<p>This policy may be updated as the site develops. Continued use of the website means you accept the current version of this policy.</p>
+<h2>Contact</h2>
+<p>For privacy-related questions, contact <a href="mailto:hello@${siteDomain}">hello@${siteDomain}</a>.</p>`;
+
 async function writeFile(name, content) {
   await fs.writeFile(path.join(outDir, name), content, "utf8");
 }
@@ -520,7 +571,7 @@ async function main() {
     "about.html",
     simplePage(
       "About",
-      "<p>Gloss &amp; City is a modern editorial magazine for fashion, beauty, celebrity style, and city living.</p><p>The site is built as a static publication with fast pages, strong internal linking, and a visual feed modeled on contemporary women's media.</p>",
+      aboutPageBody,
       "Learn about Gloss & City, a fashion, beauty, celebrity style, and city lifestyle magazine for style-conscious readers."
     )
   );
@@ -528,7 +579,7 @@ async function main() {
     "contact.html",
     simplePage(
       "Contact",
-      `<p>For editorial notes, partnerships, corrections, and advertising, email <a href="mailto:hello@${siteDomain}">hello@${siteDomain}</a>.</p>`,
+      contactPageBody,
       "Contact Gloss & City for editorial notes, corrections, advertising, brand partnerships, and reader feedback."
     )
   );
@@ -536,7 +587,7 @@ async function main() {
     "advertise.html",
     simplePage(
       "Advertise",
-      `<p>Gloss &amp; City works with fashion, beauty, wellness, lifestyle, and culture brands that want to reach style-conscious readers in the United States and Europe.</p><p>For sponsored placements, display campaigns, product features, and editorial partnerships, contact <a href="mailto:hello@${siteDomain}">hello@${siteDomain}</a>.</p>`,
+      advertisePageBody,
       "Advertise with Gloss & City to reach fashion, beauty, wellness, lifestyle, and culture readers in the United States and Europe."
     )
   );
@@ -544,7 +595,7 @@ async function main() {
     "privacy-policy.html",
     simplePage(
       "Privacy Policy",
-      "<p>This publication does not require account registration. Standard hosting logs and voluntary email messages may be used to operate the site and respond to readers.</p>",
+      privacyPageBody,
       "Read the Gloss & City privacy policy, including information about hosting logs, voluntary emails, and reader communications."
     )
   );
