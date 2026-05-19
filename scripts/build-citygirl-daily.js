@@ -297,7 +297,7 @@ function card(article, index, compact = false, prefix = "") {
 function renderHome() {
   const lead = baseArticles[0];
   const secondary = baseArticles.slice(1, 5);
-  const feed = baseArticles.slice(5);
+  const feed = baseArticles.slice(5, 29);
   const leadSummary =
     "Your daily edit of polished fashion, beauty, celebrity style, skincare, nail ideas, and modern city living.";
   const categoryLinks = categories
