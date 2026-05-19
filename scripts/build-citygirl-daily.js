@@ -365,6 +365,7 @@ function renderHome() {
 }
 
 function articleBody(article) {
+  if (article.bodyHtml) return null;
   if (Array.isArray(article.body) && article.body.length) return article.body;
   const subject = article.title.replace(/[:?].*$/, "");
   return [
@@ -378,7 +379,15 @@ function articleBody(article) {
   ];
 }
 
+function renderArticleContent(article) {
+  if (article.bodyHtml) {
+    return article.bodyHtml.replace(/src="assets\//g, `src="${absoluteUrl("assets/")}`);
+  }
+  return articleBody(article).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("");
+}
+
 function renderArticle(article, index) {
+  const articleText = article.bodyHtml ? stripText(article.bodyHtml) : articleBody(article).join(" ");
   const related = baseArticles
     .filter((item) => item.slug !== article.slug)
     .slice(index, index + 8)
@@ -412,7 +421,7 @@ function renderArticle(article, index) {
         },
         publisher: { "@id": absoluteUrl("#organization") },
         articleSection: article.category,
-        wordCount: articleBody(article).join(" ").split(/\s+/).length,
+        wordCount: articleText.split(/\s+/).filter(Boolean).length,
       },
     ],
     body: `<main class="article-layout">
@@ -422,7 +431,7 @@ function renderArticle(article, index) {
         <p class="dek">${escapeHtml(article.deck)}</p>
         <div class="article-meta"><span>By ${escapeHtml(article.author)}</span><span>${escapeHtml(article.date)}</span><span>${article.views} views</span></div>
         <figure><img src="${assetSrc(article.image[0], "../")}" alt="${escapeHtml(article.image[1])}" /><figcaption>${escapeHtml(article.image[1])}.</figcaption></figure>
-        <div class="article-content">${articleBody(article).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}</div>
+        <div class="article-content">${renderArticleContent(article)}</div>
       </article>
       <aside class="article-rail">
         <h2>Related</h2>
