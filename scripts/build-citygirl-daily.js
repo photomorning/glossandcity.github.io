@@ -15,6 +15,12 @@ const homeDescription =
   "Discover polished fashion trends, beauty ideas, celebrity style, skincare notes, nail inspiration, and city lifestyle stories for modern women.";
 const pageTitleSuffix = "Fashion, Beauty and City Style Magazine";
 const buildDate = new Date().toISOString().slice(0, 10);
+const assetVersion = formatVersion(new Date());
+
+function formatVersion(date) {
+  const pad = (value) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}${pad(date.getHours())}${pad(date.getMinutes())}`;
+}
 
 let categories = [
   "City Lifestyle",
@@ -216,14 +222,14 @@ function pageShell({ title, description = siteDescription, body, canonical = "",
     <meta name="twitter:title" content="${escapeHtml(fullTitle)}" />
     <meta name="twitter:description" content="${escapeHtml(metaDescription)}" />
     <meta name="twitter:image" content="${imageUrl}" />
-    <link rel="stylesheet" href="${absoluteUrl("styles.css")}" />
+    <link rel="stylesheet" href="${absoluteUrl(`styles.css?v=${assetVersion}`)}" />
     ${scripts.map((item) => `<script type="application/ld+json">${jsonScript(item)}</script>`).join("\n    ")}
   </head>
   <body>
     ${renderHeader(canonical)}
     ${body}
     ${renderFooter(canonical)}
-    <script src="${absoluteUrl("script.js")}"></script>
+    <script src="${absoluteUrl(`script.js?v=${assetVersion}`)}"></script>
   </body>
 </html>
 `;
