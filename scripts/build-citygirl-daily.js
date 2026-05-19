@@ -16,6 +16,13 @@ const homeDescription =
 const pageTitleSuffix = "Fashion, Beauty and City Style Magazine";
 const buildDate = new Date().toISOString().slice(0, 10);
 const assetVersion = formatVersion(new Date());
+const navCategoryLabels = {
+  "Fashion Tips and Tricks": "Style",
+  "Neighborhood Gossip": "Buzz",
+  "City Lifestyle": "City",
+  "Brand Spotlights": "Brands",
+  Skincare: "Beauty",
+};
 
 function formatVersion(date) {
   const pad = (value) => String(value).padStart(2, "0");
@@ -246,7 +253,7 @@ function assetSrc(src, prefix = "") {
 
 function renderHeader(canonical = "") {
   const categoryNav = categories
-    .map((name) => `<a href="${absoluteUrl(`categories/${slugify(name)}.html`)}">${escapeHtml(name)}</a>`)
+    .map((name) => `<a href="${absoluteUrl(`categories/${slugify(name)}.html`)}">${escapeHtml(navCategoryLabels[name] || name)}</a>`)
     .join("");
   return `<header class="site-header">
       <nav class="top-nav" aria-label="Primary">
