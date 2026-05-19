@@ -9,7 +9,11 @@ const siteName = "Gloss & City";
 const siteDomain = "glossandcity.com";
 const siteUrl = `https://${siteDomain}/`;
 const siteDescription =
-  "A polished women's fashion, beauty, celebrity style, and city lifestyle magazine for readers who like their trend coverage quick, sharp, and elegant.";
+  "Gloss & City covers fashion, beauty, celebrity style, skincare, and modern city living with polished trend reporting for women in the U.S. and Europe.";
+const homeTitle = "Gloss & City | Fashion, Beauty, Celebrity Style and City Living";
+const homeDescription =
+  "Discover polished fashion trends, beauty ideas, celebrity style, skincare notes, nail inspiration, and city lifestyle stories for modern women.";
+const pageTitleSuffix = "Fashion, Beauty and City Style Magazine";
 const buildDate = new Date().toISOString().slice(0, 10);
 
 let categories = [
@@ -186,7 +190,7 @@ function breadcrumbSchema(items) {
 }
 
 function pageShell({ title, description = siteDescription, body, canonical = "", image = "", type = "website", schema = [], breadcrumbs = [] }) {
-  const fullTitle = title === siteName ? siteName : `${title} - ${siteName}`;
+  const fullTitle = canonical === "" ? homeTitle : `${title} - ${siteName} | ${pageTitleSuffix}`;
   const metaDescription = seoDescription(description);
   const canonicalUrl = absoluteUrl(canonical);
   const imageUrl = image ? absoluteImage(image) : absoluteImage(baseArticles[0]?.image?.[0] || "");
@@ -212,14 +216,14 @@ function pageShell({ title, description = siteDescription, body, canonical = "",
     <meta name="twitter:title" content="${escapeHtml(fullTitle)}" />
     <meta name="twitter:description" content="${escapeHtml(metaDescription)}" />
     <meta name="twitter:image" content="${imageUrl}" />
-    <link rel="stylesheet" href="${canonical.startsWith("articles/") || canonical.startsWith("categories/") ? "../" : ""}styles.css" />
+    <link rel="stylesheet" href="${absoluteUrl("styles.css")}" />
     ${scripts.map((item) => `<script type="application/ld+json">${jsonScript(item)}</script>`).join("\n    ")}
   </head>
   <body>
     ${renderHeader(canonical)}
     ${body}
     ${renderFooter(canonical)}
-    <script src="${canonical.startsWith("articles/") || canonical.startsWith("categories/") ? "../" : ""}script.js"></script>
+    <script src="${absoluteUrl("script.js")}"></script>
   </body>
 </html>
 `;
@@ -231,30 +235,29 @@ function relPrefix(canonical) {
 
 function assetSrc(src, prefix = "") {
   if (/^https?:\/\//i.test(src)) return src;
-  return `${prefix}${src}`;
+  return absoluteUrl(src);
 }
 
 function renderHeader(canonical = "") {
-  const prefix = relPrefix(canonical);
   return `<header class="site-header">
       <nav class="top-nav" aria-label="Primary">
-        <a href="${prefix}index.html">Home</a>
-        <a href="${prefix}index.html#popular">Popular</a>
-        <a href="${prefix}index.html#categories">Categories</a>
+        <a href="/">Home</a>
+        <a href="${absoluteUrl("#popular")}">Popular</a>
+        <a href="${absoluteUrl("#categories")}">Categories</a>
         <button class="plain-button" type="button" data-search-toggle>Search</button>
-        <a href="${prefix}contact.html">Login</a>
+        <a href="${absoluteUrl("contact.html")}">Login</a>
       </nav>
       <div class="brand-row">
         <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false" data-menu-toggle><span></span><span></span><span></span></button>
-        <a class="wordmark" href="${prefix}index.html" aria-label="${siteName} home"><strong>Gloss</strong><span>&amp; City</span></a>
+        <a class="wordmark" href="/" aria-label="${siteName} home"><strong>Gloss</strong><span>&amp; City</span></a>
         <button class="search-icon" type="button" aria-label="Search" data-search-toggle></button>
       </div>
       <nav class="mobile-nav" aria-label="Mobile" data-mobile-nav>
-        <a href="${prefix}index.html">Home</a>
-        <a href="${prefix}index.html#popular">Popular</a>
-        <a href="${prefix}index.html#categories">Categories</a>
-        <a href="${prefix}about.html">About</a>
-        <a href="${prefix}contact.html">Contact</a>
+        <a href="/">Home</a>
+        <a href="${absoluteUrl("#popular")}">Popular</a>
+        <a href="${absoluteUrl("#categories")}">Categories</a>
+        <a href="${absoluteUrl("about.html")}">About</a>
+        <a href="${absoluteUrl("contact.html")}">Contact</a>
       </nav>
       <div class="search-panel" data-search-panel>
         <form data-search-form>
@@ -266,14 +269,13 @@ function renderHeader(canonical = "") {
 }
 
 function renderFooter(canonical = "") {
-  const prefix = relPrefix(canonical);
   return `<footer class="site-footer">
-      <a class="wordmark footer-logo" href="${prefix}index.html"><strong>Gloss</strong><span>&amp; City</span></a>
+      <a class="wordmark footer-logo" href="/"><strong>Gloss</strong><span>&amp; City</span></a>
       <nav>
-        <a href="${prefix}about.html">About Us</a>
-        <a href="${prefix}contact.html">Contact Us</a>
-        <a href="${prefix}advertise.html">Advertise</a>
-        <a href="${prefix}privacy-policy.html">Privacy Policy</a>
+        <a href="${absoluteUrl("about.html")}">About Us</a>
+        <a href="${absoluteUrl("contact.html")}">Contact Us</a>
+        <a href="${absoluteUrl("advertise.html")}">Advertise</a>
+        <a href="${absoluteUrl("privacy-policy.html")}">Privacy Policy</a>
       </nav>
       <p>Independent fashion, beauty, and city lifestyle coverage. Contact: hello@${siteDomain}</p>
     </footer>`;
@@ -281,12 +283,12 @@ function renderFooter(canonical = "") {
 
 function card(article, index, compact = false, prefix = "") {
   return `<article class="story-card ${compact ? "compact" : ""}" data-title="${escapeHtml(article.title.toLowerCase())}" data-category="${escapeHtml(article.category.toLowerCase())}">
-      <a class="category-pill" href="${prefix}categories/${slugify(article.category)}.html">${escapeHtml(article.category)}</a>
-      <a class="image-link" href="${prefix}articles/${article.slug}.html">
+      <a class="category-pill" href="${absoluteUrl(`categories/${slugify(article.category)}.html`)}">${escapeHtml(article.category)}</a>
+      <a class="image-link" href="${absoluteUrl(`articles/${article.slug}.html`)}">
         <img src="${assetSrc(article.image[0], prefix)}" alt="${escapeHtml(article.image[1])}" loading="${index < 6 ? "eager" : "lazy"}" />
       </a>
       <div class="meta-row"><span>${index < 1 ? "2 hours ago" : index === 1 ? "23 hours ago" : `${index} days ago`}</span><span>${article.views}</span></div>
-      <h2><a href="${prefix}articles/${article.slug}.html">${escapeHtml(article.title)}</a></h2>
+      <h2><a href="${absoluteUrl(`articles/${article.slug}.html`)}">${escapeHtml(article.title)}</a></h2>
       <p>${escapeHtml(previewText(article.deck))}</p>
       <div class="byline"><span>${escapeHtml(article.author)}</span></div>
     </article>`;
@@ -296,18 +298,21 @@ function renderHome() {
   const lead = baseArticles[0];
   const secondary = baseArticles.slice(1, 5);
   const feed = baseArticles.slice(5);
+  const leadSummary =
+    "Your daily edit of polished fashion, beauty, celebrity style, skincare, nail ideas, and modern city living.";
   const categoryLinks = categories
-    .map((name) => `<a href="categories/${slugify(name)}.html"><span>${escapeHtml(name)}</span><strong>${baseArticles.filter((article) => article.category === name).length}</strong></a>`)
+    .map((name) => `<a href="${absoluteUrl(`categories/${slugify(name)}.html`)}"><span>${escapeHtml(name)}</span><strong>${baseArticles.filter((article) => article.category === name).length}</strong></a>`)
     .join("");
   const popular = baseArticles
     .slice()
     .sort((a, b) => b.views - a.views)
     .slice(0, 6)
-    .map((article, index) => `<a href="articles/${article.slug}.html"><span>${String(index + 1).padStart(2, "0")}</span>${escapeHtml(article.title)}</a>`)
+    .map((article, index) => `<a href="${absoluteUrl(`articles/${article.slug}.html`)}"><span>${String(index + 1).padStart(2, "0")}</span>${escapeHtml(article.title)}</a>`)
     .join("");
 
   return pageShell({
     title: siteName,
+    description: homeDescription,
     canonical: "",
     image: lead.image[0],
     schema: [
@@ -317,7 +322,7 @@ function renderHome() {
         "@id": absoluteUrl("#home"),
         name: siteName,
         url: siteUrl,
-        description: siteDescription,
+        description: homeDescription,
         isPartOf: { "@id": absoluteUrl("#website") },
         publisher: { "@id": absoluteUrl("#organization") },
         mainEntity: {
@@ -334,11 +339,11 @@ function renderHome() {
     body: `<main>
       <section class="lead-grid">
         <article class="lead-story">
-          <a class="category-pill" href="categories/${slugify(lead.category)}.html">${escapeHtml(lead.category)}</a>
-          <a href="articles/${lead.slug}.html"><img src="${assetSrc(lead.image[0])}" alt="${escapeHtml(lead.image[1])}" /></a>
+          <a class="category-pill" href="${absoluteUrl(`categories/${slugify(lead.category)}.html`)}">${escapeHtml(lead.category)}</a>
+          <a href="${absoluteUrl(`articles/${lead.slug}.html`)}"><img src="${assetSrc(lead.image[0])}" alt="${escapeHtml(lead.image[1])}" /></a>
           <div class="meta-row"><span>2 hours ago</span><span>${lead.views}</span></div>
-          <h1><a href="articles/${lead.slug}.html">${escapeHtml(lead.title)}</a></h1>
-          <p>${escapeHtml(previewText(lead.deck, 112))}</p>
+          <h1><a href="${absoluteUrl(`articles/${lead.slug}.html`)}">${escapeHtml(lead.title)}</a></h1>
+          <p>${escapeHtml(leadSummary)}</p>
           <div class="byline"><span>${escapeHtml(lead.author)}</span></div>
         </article>
         <aside class="side-stack">${secondary.map((article, index) => card(article, index + 1, true)).join("")}</aside>
@@ -412,7 +417,7 @@ function renderArticle(article, index) {
     ],
     body: `<main class="article-layout">
       <article class="article-page">
-        <a class="category-pill" href="../categories/${slugify(article.category)}.html">${escapeHtml(article.category)}</a>
+        <a class="category-pill" href="${absoluteUrl(`categories/${slugify(article.category)}.html`)}">${escapeHtml(article.category)}</a>
         <h1>${escapeHtml(article.title)}</h1>
         <p class="dek">${escapeHtml(article.deck)}</p>
         <div class="article-meta"><span>By ${escapeHtml(article.author)}</span><span>${escapeHtml(article.date)}</span><span>${article.views} views</span></div>
@@ -421,7 +426,7 @@ function renderArticle(article, index) {
       </article>
       <aside class="article-rail">
         <h2>Related</h2>
-        ${related.map((item) => `<a href="${item.slug}.html">${escapeHtml(item.title)}</a>`).join("")}
+        ${related.map((item) => `<a href="${absoluteUrl(`articles/${item.slug}.html`)}">${escapeHtml(item.title)}</a>`).join("")}
       </aside>
     </main>`,
   });
@@ -460,7 +465,7 @@ function renderCategory(name) {
     ],
     body: `<main class="category-page">
       <header><span>Category</span><h1>${escapeHtml(name)}</h1></header>
-      <div class="story-grid">${articles.map((article, index) => card(article, index, false, "../")).join("")}</div>
+      <div class="story-grid">${articles.map((article, index) => card(article, index, false, "")).join("")}</div>
     </main>`,
   });
 }
