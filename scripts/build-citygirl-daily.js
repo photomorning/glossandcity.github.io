@@ -6,8 +6,9 @@ const outDir = root;
 const articleDir = path.join(outDir, "articles");
 const categoryDir = path.join(outDir, "categories");
 const siteName = "Gloss & City";
-const siteDomain = "glossandcity.com";
+const siteDomain = "www.glossandcity.com";
 const siteUrl = `https://${siteDomain}/`;
+const contactEmail = "hello@glossandcity.com";
 const siteDescription =
   "Gloss & City covers fashion, beauty, celebrity style, skincare, and modern city living with polished trend reporting for women in the U.S. and Europe.";
 const homeTitle = "Gloss & City | Fashion, Beauty, Celebrity Style and City Living";
@@ -167,7 +168,7 @@ function organizationSchema() {
     "@id": absoluteUrl("#organization"),
     name: siteName,
     url: siteUrl,
-    email: `hello@${siteDomain}`,
+    email: contactEmail,
     publishingPrinciples: absoluteUrl("privacy-policy.html"),
   };
 }
@@ -293,7 +294,7 @@ function renderFooter(canonical = "") {
         <a href="${absoluteUrl("advertise.html")}">Advertise</a>
         <a href="${absoluteUrl("privacy-policy.html")}">Privacy Policy</a>
       </nav>
-      <p>Independent fashion, beauty, and city lifestyle coverage. Contact: hello@${siteDomain}</p>
+      <p>Independent fashion, beauty, and city lifestyle coverage. Contact: ${contactEmail}</p>
     </footer>`;
 }
 
@@ -532,7 +533,7 @@ const aboutPageBody = `
 
 const contactPageBody = `
 <p>For editorial notes, corrections, partnerships, advertising, and general inquiries, contact Gloss &amp; City by email.</p>
-<p><strong>Email:</strong> <a href="mailto:hello@${siteDomain}">hello@${siteDomain}</a></p>
+<p><strong>Email:</strong> <a href="mailto:${contactEmail}">${contactEmail}</a></p>
 <h2>Editorial and Corrections</h2>
 <p>If you notice an error, outdated detail, broken link, incorrect attribution, or image concern, include the page URL and a short explanation so we can review it quickly.</p>
 <h2>Partnerships and Advertising</h2>
@@ -549,7 +550,7 @@ const advertisePageBody = `
 <h2>Brand Fit</h2>
 <p>We are best suited for brands in fashion, beauty, skincare, fragrance, wellness, accessories, lifestyle, travel, and culture. We prioritize partnerships that feel useful to readers and aligned with the visual tone of Gloss &amp; City.</p>
 <h2>Contact</h2>
-<p>To discuss availability, rates, and campaign ideas, email <a href="mailto:hello@${siteDomain}">hello@${siteDomain}</a> with your brand name, campaign goals, target market, timeline, and preferred placement.</p>`;
+<p>To discuss availability, rates, and campaign ideas, email <a href="mailto:${contactEmail}">${contactEmail}</a> with your brand name, campaign goals, target market, timeline, and preferred placement.</p>`;
 
 const privacyPageBody = `
 <p>This Privacy Policy explains how Gloss &amp; City handles basic information connected with operating this website.</p>
@@ -566,7 +567,7 @@ const privacyPageBody = `
 <h2>Updates</h2>
 <p>This policy may be updated as the site develops. Continued use of the website means you accept the current version of this policy.</p>
 <h2>Contact</h2>
-<p>For privacy-related questions, contact <a href="mailto:hello@${siteDomain}">hello@${siteDomain}</a>.</p>`;
+<p>For privacy-related questions, contact <a href="mailto:${contactEmail}">${contactEmail}</a>.</p>`;
 
 async function writeFile(name, content) {
   await fs.writeFile(path.join(outDir, name), content, "utf8");

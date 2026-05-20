@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://glossandcity.com/sitemap.xml
+Sitemap: https://www.glossandcity.com/sitemap.xml
