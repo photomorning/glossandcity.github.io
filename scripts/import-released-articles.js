@@ -5,6 +5,7 @@ const sharp = require("sharp");
 
 const root = path.resolve(__dirname, "..");
 const releasedDir = path.join(root, "released");
+const releasedArchiveDir = path.join(root, "released-archive");
 const contentDir = path.join(root, "content");
 const imageDir = path.join(root, "assets", "images");
 const outputPath = path.join(contentDir, "articles.json");
@@ -77,6 +78,7 @@ function stableViews(slug) {
 
 function categoryFor(title, body) {
   const text = `${title} ${body}`.toLowerCase();
+  if (/airline|flight|flying|business class|hotel|itinerary|theatre|theater|travel|trip|singapore|dubai|nyc|new york/.test(text)) return "City Lifestyle";
   if (/vitamin|skincare|skin|sunscreen|wrinkle|dermatologist|peptide|licorice|volufiline|anti-aging|face/.test(text)) return "Skincare";
   if (/nail|manicure|haircut|haircuts|burgundy|amethyst|plaid|tweed/.test(text)) return "Fashion Tips and Tricks";
   if (/dior|louis vuitton|brand|designer|sza/.test(text)) return "Brand Spotlights";
@@ -103,6 +105,41 @@ async function clearDirectory(target) {
   await fs.mkdir(target, { recursive: true });
   const entries = await fs.readdir(target);
   await Promise.all(entries.map((entry) => fs.rm(path.join(target, entry), { recursive: true, force: true })));
+}
+
+async function loadExistingArticles() {
+  if (!(await pathExists(outputPath))) return [];
+  const articles = JSON.parse(await fs.readFile(outputPath, "utf8"));
+  return Array.isArray(articles) ? articles : [];
+}
+
+async function uniqueArchivePath(targetDir, fileName) {
+  const parsed = path.parse(fileName);
+  let target = path.join(targetDir, fileName);
+  let counter = 2;
+  while (await pathExists(target)) {
+    target = path.join(targetDir, `${parsed.name}-${counter}${parsed.ext}`);
+    counter += 1;
+  }
+  return target;
+}
+
+function localDateStamp(date = new Date()) {
+  const pad = (value) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+async function archiveReleasedFiles(files) {
+  if (!files.length) return;
+  const today = localDateStamp();
+  const targetDir = path.join(releasedArchiveDir, today);
+  await fs.mkdir(targetDir, { recursive: true });
+  for (const file of files) {
+    const source = path.join(releasedDir, file);
+    if (!(await pathExists(source))) continue;
+    await fs.rename(source, await uniqueArchivePath(targetDir, file));
+  }
+  console.log(`Archived ${files.length} source files to ${path.relative(root, targetDir)}.`);
 }
 
 async function downloadAvif(url, slug, index) {
@@ -241,16 +278,25 @@ async function markdownToHtml(markdown, slug, imageMap) {
 async function main() {
   if (!(await pathExists(releasedDir))) throw new Error("Missing released directory.");
   await fs.mkdir(contentDir, { recursive: true });
-  await clearDirectory(imageDir);
+  await fs.mkdir(imageDir, { recursive: true });
 
   const files = (await fs.readdir(releasedDir))
     .filter((file) => /\.md$/i.test(file))
     .sort((a, b) => a.localeCompare(b));
+  const existingArticles = await loadExistingArticles();
+  const existingSourceFiles = new Set(existingArticles.map((article) => article.sourceFile).filter(Boolean));
+  const pendingFiles = files.filter((file) => !existingSourceFiles.has(`released/${file}`));
+
+  if (!pendingFiles.length) {
+    console.log("No new released articles to import.");
+    return;
+  }
+
   const authors = ["Mara Ellison", "Felicia Bloom", "Nina Vale", "June Hart", "Cleo Nash", "Ari Lane"];
   const articles = [];
 
-  for (let index = 0; index < files.length; index += 1) {
-    const file = files[index];
+  for (let index = 0; index < pendingFiles.length; index += 1) {
+    const file = pendingFiles[index];
     const filePath = path.join(releasedDir, file);
     const stat = await fs.stat(filePath);
     const markdown = cleanText(await fs.readFile(filePath, "utf8"));
@@ -268,7 +314,7 @@ async function main() {
       slug,
       title,
       category,
-      author: authors[index % authors.length],
+      author: authors[(existingArticles.length + index) % authors.length],
       date: stat.mtime.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
       deck: extractDeck(markdown),
       views: stableViews(slug),
@@ -276,10 +322,11 @@ async function main() {
       bodyHtml,
       sourceFile: `released/${file}`,
     });
-    console.log(`${index + 1}/${files.length} ${slug} (${imageUrls.length} images)`);
+    console.log(`${index + 1}/${pendingFiles.length} ${slug} (${imageUrls.length} images)`);
   }
 
-  await fs.writeFile(outputPath, `${JSON.stringify(articles, null, 2)}\n`, "utf8");
+  await fs.writeFile(outputPath, `${JSON.stringify([...articles, ...existingArticles], null, 2)}\n`, "utf8");
+  await archiveReleasedFiles(pendingFiles);
   console.log(`Imported ${articles.length} released articles to ${path.relative(root, outputPath)}.`);
 }
 

@@ -31,6 +31,18 @@
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://www.glossandcity.com/articles/singapore-airlines-business-class-review-flying-sq494-from-singapore-to-dubai.html</loc>
+    <lastmod>2026-05-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.glossandcity.com/articles/the-perfect-4-night-nyc-itinerary-for-theatre-lovers.html</loc>
+    <lastmod>2026-05-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.glossandcity.com/articles/10-manicure-colors-and-nail-trends-to-try-in-2026.html</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>monthly</changefreq>
@@ -211,6 +223,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.glossandcity.com/categories/city-lifestyle.html</loc>
+    <lastmod>2026-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.glossandcity.com/categories/skincare.html</loc>
     <lastmod>2026-05-20</lastmod>
     <changefreq>weekly</changefreq>
@@ -218,12 +236,6 @@
   </url>
   <url>
     <loc>https://www.glossandcity.com/categories/neighborhood-gossip.html</loc>
-    <lastmod>2026-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://www.glossandcity.com/categories/city-lifestyle.html</loc>
     <lastmod>2026-05-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
