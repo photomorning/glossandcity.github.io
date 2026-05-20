@@ -501,6 +501,26 @@ p {
   font: 700 12px Arial, sans-serif;
 }
 
+#popular a {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: start;
+  padding: 14px 0;
+}
+
+#popular a:hover {
+  background: linear-gradient(90deg, rgba(192, 21, 68, 0.055), transparent 72%);
+}
+
+#popular a span {
+  width: auto;
+  padding-top: 2px;
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
 .category-list a {
   display: flex;
   justify-content: space-between;
