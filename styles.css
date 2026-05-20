@@ -503,8 +503,8 @@ p {
 
 #popular a {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  column-gap: 12px;
+  grid-template-columns: 22px minmax(0, 1fr);
+  column-gap: 8px;
   align-items: start;
   padding: 14px 0;
 }
