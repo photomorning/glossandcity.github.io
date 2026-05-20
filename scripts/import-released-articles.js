@@ -9,6 +9,32 @@ const releasedArchiveDir = path.join(root, "released-archive");
 const contentDir = path.join(root, "content");
 const imageDir = path.join(root, "assets", "images");
 const outputPath = path.join(contentDir, "articles.json");
+const stockImageSources = {
+  "Brand Spotlights": [
+    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1800&q=82",
+    "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1800&q=82",
+  ],
+  "City Lifestyle": [
+    "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1800&q=82",
+    "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1800&q=82",
+  ],
+  "Fashion Tips and Tricks": [
+    "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1800&q=82",
+    "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1800&q=82",
+  ],
+  "Neighborhood Gossip": [
+    "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1800&q=82",
+    "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1800&q=82",
+  ],
+  Skincare: [
+    "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1800&q=82",
+    "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1800&q=82",
+  ],
+  default: [
+    "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1800&q=82",
+    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1800&q=82",
+  ],
+};
 
 function cleanText(value = "") {
   return value
@@ -181,21 +207,21 @@ async function downloadAvif(url, slug, index) {
   return `assets/images/${fileName}`;
 }
 
-async function placeholderImage(category) {
-  await fs.mkdir(imageDir, { recursive: true });
-  const slug = slugify(category || "gloss-city");
-  const fileName = `placeholder-${slug}.avif`;
-  const filePath = path.join(imageDir, fileName);
-  if (await pathExists(filePath)) return `assets/images/${fileName}`;
-  const svg = `<svg width="1600" height="1100" xmlns="http://www.w3.org/2000/svg">
-    <rect width="1600" height="1100" fill="#f6f2ee"/>
-    <rect x="90" y="90" width="1420" height="920" fill="#ffffff" stroke="#e6e3df" stroke-width="4"/>
-    <text x="140" y="500" font-family="Georgia, serif" font-size="118" fill="#121212">Gloss &amp; City</text>
-    <text x="145" y="620" font-family="Arial, sans-serif" font-size="42" fill="#c01544">${escapeHtml(category || "Fashion and Beauty")}</text>
-  </svg>`;
-  const converted = await sharp(Buffer.from(svg)).avif({ quality: 76, effort: 5 }).toBuffer();
-  await fs.writeFile(filePath, converted);
-  return `assets/images/${fileName}`;
+async function stockImage(category, slug) {
+  const sources = stockImageSources[category] || stockImageSources.default;
+  const hash = crypto.createHash("sha1").update(`${category}:${slug}`).digest("hex");
+  const startIndex = parseInt(hash.slice(0, 8), 16) % sources.length;
+  const orderedSources = [...sources.slice(startIndex), ...sources.slice(0, startIndex)];
+  let lastError;
+  for (const source of orderedSources) {
+    try {
+      return await downloadAvif(source, `stock-${slug}`, 0);
+    } catch (error) {
+      lastError = error;
+      console.warn(`Stock image failed for ${slug}: ${error.message}`);
+    }
+  }
+  throw new Error(`No stock image could be downloaded for ${slug}: ${lastError?.message || "unknown error"}`);
 }
 
 function extractTitle(markdown, fallback) {
@@ -309,7 +335,7 @@ async function main() {
     }
     const bodyHtml = await markdownToHtml(markdown, slug, imageMap);
     const category = categoryFor(title, markdown);
-    const firstImage = imageMap.values().next().value || (await placeholderImage(category));
+    const firstImage = imageMap.values().next().value || (await stockImage(category, slug));
     articles.push({
       slug,
       title,
