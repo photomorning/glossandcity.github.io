@@ -462,6 +462,13 @@ p {
   box-shadow: var(--shadow);
 }
 
+.article-rail {
+  position: sticky;
+  top: 128px;
+  max-height: calc(100vh - 152px);
+  overflow-y: auto;
+}
+
 .rail h2,
 .article-rail h2 {
   margin: 0 0 14px;
@@ -675,6 +682,12 @@ figcaption {
   .rail,
   .article-rail {
     display: none;
+  }
+
+  .article-rail {
+    position: static;
+    max-height: none;
+    overflow: visible;
   }
 }
 

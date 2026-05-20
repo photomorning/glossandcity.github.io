@@ -66,7 +66,7 @@ function inlineMarkdown(value = "") {
 
 function cleanImageAlt(value = "") {
   const alt = stripMarkdown(value);
-  if (!alt || /^(mid|top|image|img|photo|picture)$/i.test(alt)) return "";
+  if (!alt || /^(mid|top|image|img|photo|picture)(\s+\d+)?$/i.test(alt)) return "";
   return alt;
 }
 
