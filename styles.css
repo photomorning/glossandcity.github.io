@@ -7,6 +7,7 @@
   --accent: #c01544;
   --gold: #a87c2b;
   --sage: #8a9b82;
+  --link-green: #1f7a4d;
   --shadow: 0 18px 45px rgba(18, 18, 18, 0.08);
   font-family: Georgia, "Times New Roman", serif;
   color: var(--ink);
@@ -598,6 +599,21 @@ figcaption {
   color: #2f2b28;
   font-size: 19px;
   line-height: 1.72;
+}
+
+.article-content a {
+  color: var(--link-green);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--link-green);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.article-content a:hover {
+  background: rgba(31, 122, 77, 0.12);
+  color: #145b38;
 }
 
 .article-content p:first-child::first-letter {
