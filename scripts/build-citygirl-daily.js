@@ -5,10 +5,12 @@ const root = path.resolve(__dirname, "..");
 const outDir = root;
 const articleDir = path.join(outDir, "articles");
 const categoryDir = path.join(outDir, "categories");
+const adRedirectDir = path.join(outDir, "go");
 const siteName = "Gloss & City";
 const siteDomain = "www.glossandcity.com";
 const siteUrl = `https://${siteDomain}/`;
 const contactEmail = "hello@glossandcity.com";
+const ringConnUrl = "https://pboost.me/Q1zpO8OT?uid=20260531";
 const siteDescription =
   "Gloss & City covers fashion, beauty, celebrity style, skincare, and modern city living with polished trend reporting for women in the U.S. and Europe.";
 const homeTitle = "Gloss & City | Fashion, Beauty, Celebrity Style and City Living";
@@ -203,7 +205,18 @@ function breadcrumbSchema(items) {
   };
 }
 
-function pageShell({ title, description = siteDescription, body, canonical = "", image = "", type = "website", schema = [], breadcrumbs = [] }) {
+function pageShell({
+  title,
+  description = siteDescription,
+  body,
+  canonical = "",
+  image = "",
+  type = "website",
+  schema = [],
+  breadcrumbs = [],
+  robots = "index, follow, max-image-preview:large",
+  headExtra = "",
+}) {
   const fullTitle = canonical === "" ? homeTitle : `${title} - ${siteName} | ${pageTitleSuffix}`;
   const metaDescription = seoDescription(description);
   const canonicalUrl = absoluteUrl(canonical);
@@ -217,7 +230,7 @@ function pageShell({ title, description = siteDescription, body, canonical = "",
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${escapeHtml(fullTitle)}</title>
     <meta name="description" content="${escapeHtml(metaDescription)}" />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="robots" content="${escapeHtml(robots)}" />
     <meta name="author" content="${escapeHtml(siteName)}" />
     <link rel="canonical" href="${canonicalUrl}" />
     <meta property="og:site_name" content="${escapeHtml(siteName)}" />
@@ -231,6 +244,7 @@ function pageShell({ title, description = siteDescription, body, canonical = "",
     <meta name="twitter:description" content="${escapeHtml(metaDescription)}" />
     <meta name="twitter:image" content="${imageUrl}" />
     <link rel="stylesheet" href="${absoluteUrl(`styles.css?v=${assetVersion}`)}" />
+    ${headExtra}
     ${scripts.map((item) => `<script type="application/ld+json">${jsonScript(item)}</script>`).join("\n    ")}
   </head>
   <body>
@@ -521,6 +535,28 @@ function simplePage(title, body, description) {
   });
 }
 
+function renderRingConnRedirect() {
+  return pageShell({
+    title: "RingConn Offer",
+    description: "You are being redirected to a sponsored RingConn offer.",
+    canonical: "go/ringconn.html",
+    robots: "noindex, nofollow",
+    headExtra: `<meta http-equiv="refresh" content="2; url=${escapeHtml(ringConnUrl)}" />`,
+    body: `<main class="simple-page ad-redirect">
+      <p class="sponsored-note">Sponsored Link</p>
+      <h1>Opening RingConn Offer</h1>
+      <p>You are being redirected to RingConn. If the page does not open automatically, use the button below.</p>
+      <a class="ad-button" href="${escapeHtml(ringConnUrl)}" rel="sponsored nofollow noopener">Continue to RingConn</a>
+      <p class="redirect-url">${escapeHtml(ringConnUrl)}</p>
+      <script>
+        window.setTimeout(function () {
+          window.location.href = ${JSON.stringify(ringConnUrl)};
+        }, 1200);
+      </script>
+    </main>`,
+  });
+}
+
 const aboutPageBody = `
 <p>Gloss &amp; City is an independent digital magazine covering fashion, beauty, celebrity style, skincare, nails, hair, red carpet moments, and the rituals of modern city living.</p>
 <p>Our point of view is polished but practical. We follow the runway, the front row, the beauty counter, the street style photograph, and the small styling decisions that make everyday dressing feel more intentional.</p>
@@ -577,8 +613,10 @@ async function main() {
   await loadContentArticles();
   await fs.mkdir(articleDir, { recursive: true });
   await fs.mkdir(categoryDir, { recursive: true });
+  await fs.mkdir(adRedirectDir, { recursive: true });
   await Promise.all((await fs.readdir(articleDir)).filter((file) => file.endsWith(".html")).map((file) => fs.rm(path.join(articleDir, file))));
   await Promise.all((await fs.readdir(categoryDir)).filter((file) => file.endsWith(".html")).map((file) => fs.rm(path.join(categoryDir, file))));
+  await Promise.all((await fs.readdir(adRedirectDir)).filter((file) => file.endsWith(".html")).map((file) => fs.rm(path.join(adRedirectDir, file))));
 
   await writeFile("index.html", renderHome());
   await writeFile(
@@ -613,6 +651,7 @@ async function main() {
       "Read the Gloss & City privacy policy, including information about hosting logs, voluntary emails, and reader communications."
     )
   );
+  await writeFile("go/ringconn.html", renderRingConnRedirect());
 
   await Promise.all(baseArticles.map((article, index) => fs.writeFile(path.join(articleDir, `${article.slug}.html`), renderArticle(article, index), "utf8")));
   await Promise.all(categories.map((name) => fs.writeFile(path.join(categoryDir, `${slugify(name)}.html`), renderCategory(name), "utf8")));

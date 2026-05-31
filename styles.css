@@ -637,6 +637,51 @@ figcaption {
   text-decoration: underline;
 }
 
+.ad-redirect {
+  display: grid;
+  align-content: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.ad-redirect h1 {
+  margin-bottom: 0;
+}
+
+.sponsored-note {
+  margin: 0;
+  color: var(--accent);
+  font: 700 12px Arial, sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ad-button {
+  justify-self: center;
+  display: inline-block;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: #fff !important;
+  padding: 14px 22px;
+  font: 700 12px Arial, sans-serif;
+  letter-spacing: 0.08em;
+  text-decoration: none !important;
+  text-transform: uppercase;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.ad-button:hover {
+  background: #fff;
+  color: var(--ink) !important;
+  transform: translateY(-1px);
+}
+
+.redirect-url {
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font: 12px Arial, sans-serif;
+}
+
 .site-footer {
   border-top: 1px solid var(--line);
   padding: 38px 20px;

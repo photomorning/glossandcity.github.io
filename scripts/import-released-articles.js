@@ -72,7 +72,8 @@ function slugify(value) {
     .replace(/&/g, " and ")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
-    .slice(0, 90);
+    .slice(0, 90)
+    .replace(/^-+|-+$/g, "");
 }
 
 function escapeHtml(value = "") {
@@ -84,10 +85,24 @@ function escapeHtml(value = "") {
 }
 
 function inlineMarkdown(value = "") {
-  return escapeHtml(value)
+  const links = [];
+  const withLinkTokens = value.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, (_, label, url) => {
+    const token = `@@LINK${links.length}@@`;
+    const rel = /\/go\//.test(url) ? ' rel="sponsored nofollow noopener"' : ' rel="noopener"';
+    links.push(`<a href="${escapeHtml(url)}"${rel}>${escapeHtml(stripMarkdown(label))}</a>`);
+    return token;
+  });
+
+  let html = escapeHtml(withLinkTokens)
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/\*([^*]+)\*/g, "<em>$1</em>")
     .replace(/`([^`]+)`/g, "<code>$1</code>");
+
+  links.forEach((link, index) => {
+    html = html.replace(`@@LINK${index}@@`, link);
+  });
+
+  return html;
 }
 
 function cleanImageAlt(value = "") {
@@ -104,10 +119,12 @@ function stableViews(slug) {
 
 function categoryFor(title, body) {
   const text = `${title} ${body}`.toLowerCase();
+  const titleText = title.toLowerCase();
+  if (/ringconn|smart ring|wearable|health tracker/.test(titleText)) return "Brand Spotlights";
   if (/airline|flight|flying|business class|hotel|itinerary|theatre|theater|travel|trip|singapore|dubai|nyc|new york/.test(text)) return "City Lifestyle";
   if (/vitamin|skincare|skin|sunscreen|wrinkle|dermatologist|peptide|licorice|volufiline|anti-aging|face/.test(text)) return "Skincare";
   if (/nail|manicure|haircut|haircuts|burgundy|amethyst|plaid|tweed/.test(text)) return "Fashion Tips and Tricks";
-  if (/dior|louis vuitton|brand|designer|sza/.test(text)) return "Brand Spotlights";
+  if (/ringconn|smart ring|wearable|health tracker|dior|louis vuitton|brand|designer|sza/.test(text)) return "Brand Spotlights";
   if (/rihanna|dakota|katy|hailey|golden globe|critics choice|red carpet|celebrity|winona|rocky|noah wyle/.test(text)) return "Neighborhood Gossip";
   if (/office|holiday|strike|shutdown|city|sidewalk|home/.test(text)) return "City Lifestyle";
   return "Trendy Outfits";
